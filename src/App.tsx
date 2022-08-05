@@ -1,11 +1,10 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { request, gql } from "graphql-request";
+import { gql } from "graphql-request";
 
 import { Button } from "./components/Button";
+import { client } from "./graphql/client";
 
-const GRAPHQL_URI =
-  "https://swapi-graphql.netlify.app/.netlify/functions/index";
 const REST_URI = "https://swapi.dev/api";
 
 const containerStyles = {
@@ -110,8 +109,7 @@ function useFilms() {
   return useQuery(
     ["getFilms"],
     async () => {
-      const data = await request(
-        GRAPHQL_URI,
+      const data = await client.request(
         gql`
           query {
             allFilms {
