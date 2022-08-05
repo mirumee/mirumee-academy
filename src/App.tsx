@@ -6,7 +6,7 @@ import { Button } from "./components/Button";
 
 const GRAPHQL_URI =
   "https://swapi-graphql.netlify.app/.netlify/functions/index";
-// const REST_URI = "https://swapi.dev/api";
+const REST_URI = "https://swapi.dev/api";
 
 const containerStyles = {
   display: "flex",
@@ -17,8 +17,23 @@ const containerStyles = {
 function App() {
   const [clickNumber, setClickNumber] = React.useState(0);
   const [reset, setReset] = React.useState(false);
+  const [movies, setMovies] = React.useState<any[]>([]);
 
   const { isError, data, error, refetch, isFetching } = useFilms();
+
+  const fetchFilms = async () => {
+    const data = await fetch(`${REST_URI}/films/`, {
+      headers: {
+        Accept: "application/json",
+      },
+      method: "GET",
+    });
+
+    const movies = await data.json();
+    setMovies(movies.results);
+
+    return movies;
+  };
 
   return (
     <div className="appContainer">
@@ -57,8 +72,13 @@ function App() {
         )}
       </div>
 
-      <div style={{ margin: "0 auto" }}>
-        <Button onClick={() => refetch()}>Fetch Films</Button>
+      <div style={containerStyles}>
+        <div style={{ marginRight: "1rem" }}>
+          <Button onClick={() => refetch()}>Fetch Films with GraphQL</Button>
+        </div>
+        <div>
+          <Button onClick={() => fetchFilms()}>Fetch Films with REST</Button>
+        </div>
       </div>
       <div style={{ margin: "0 auto" }}>
         {data && (
@@ -66,6 +86,13 @@ function App() {
             {/* @ts-ignore */}
             {data.films.map((film) => (
               <li key={film.id}>{film.title}</li>
+            ))}
+          </ul>
+        )}
+        {!!movies.length && (
+          <ul>
+            {movies.map((movie) => (
+              <li key={movie.id}>{movie.title}</li>
             ))}
           </ul>
         )}
