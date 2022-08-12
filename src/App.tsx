@@ -2,10 +2,12 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { gql } from "graphql-request";
 
+import { useFilmsQuery } from "./graphql/generated";
+
 import { Button } from "./components/Button";
 import { client } from "./graphql/client";
 
-const REST_URI = "https://swapi.dev/api";
+const REST_URI = process.env.REACT_APP_REST_URI || "";
 
 const containerStyles = {
   display: "flex",
@@ -18,7 +20,10 @@ function App() {
   const [reset, setReset] = React.useState(false);
   const [movies, setMovies] = React.useState<any[]>([]);
 
-  const { isError, data, error, refetch, isFetching } = useFilms();
+  const { isError, data, error, refetch, isFetching } = useFilmsQuery(
+    undefined,
+    { enabled: false }
+  );
 
   const fetchFilms = async () => {
     const data = await fetch(`${REST_URI}/films/`, {
@@ -83,8 +88,8 @@ function App() {
         {data && (
           <ul>
             {/* @ts-ignore */}
-            {data.films.map((film) => (
-              <li key={film.id}>{film.title}</li>
+            {data.allFilms.films.map((film) => (
+              <li key={film?.id}>{film?.title}</li>
             ))}
           </ul>
         )}
@@ -111,7 +116,7 @@ function useFilms() {
     async () => {
       const data = await client.request(
         gql`
-          query {
+          query Films {
             allFilms {
               films {
                 id
